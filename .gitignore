@@ -60,3 +60,9 @@ buck-out/
 /ios/Pods/
 
 .env 
+
+# lock files
+
+yarn.lock 
+
+package-lock.json 
