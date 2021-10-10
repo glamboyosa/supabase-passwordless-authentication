@@ -1,21 +1,14 @@
-import { AuthContext } from './Context'
-import React, { useContext, useState } from 'react'
-
-import {
-  SafeAreaView,
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-  Image,
-} from 'react-native'
-
 import TruSDK from '@tru_id/tru-sdk-react-native'
+import React, { useContext, useState } from 'react'
+import {
+    ActivityIndicator,
+    Alert, Dimensions, Image, SafeAreaView, StyleSheet, Text, TextInput,
+    TouchableOpacity, View
+} from 'react-native'
 import { supabase } from './App'
+import { AuthContext } from './Context'
+
+ß
 const Screens = () => {
   const baseURL = '<YOUR_LOCAL_TUNNEL_URL>'
   const { screen, setScreen } = useContext(AuthContext)
