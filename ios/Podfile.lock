@@ -337,6 +337,10 @@ PODS:
     - React-jsi (= 0.66.0)
     - React-logger (= 0.66.0)
     - React-perflogger (= 0.66.0)
+  - tru-sdk-ios (0.2.9)
+  - tru-sdk-react-native (0.3.6):
+    - React-Core
+    - tru-sdk-ios (~> 0.2.8)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -394,6 +398,7 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - React-runtimeexecutor (from `../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
+  - "tru-sdk-react-native (from `../node_modules/@tru_id/tru-sdk-react-native`)"
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -411,6 +416,7 @@ SPEC REPOS:
     - fmt
     - libevent
     - OpenSSL-Universal
+    - tru-sdk-ios
     - YogaKit
 
 EXTERNAL SOURCES:
@@ -472,6 +478,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/runtimeexecutor"
   ReactCommon:
     :path: "../node_modules/react-native/ReactCommon"
+  tru-sdk-react-native:
+    :path: "../node_modules/@tru_id/tru-sdk-react-native"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -518,9 +526,11 @@ SPEC CHECKSUMS:
   React-RCTVibration: 53b92d54b923283638cb0186da7a5c2d2b70a49b
   React-runtimeexecutor: 4bb657a97aa74568d9ed634c8bd478299bb8a3a6
   ReactCommon: eb059748e842a1a86025ebbd4ac9d99e74492f88
+  tru-sdk-ios: f19e60e053ac111baeae0304c1c4f7c068ed1525
+  tru-sdk-react-native: ee65fb6933902bd26fa7c7e430d323f29380b47b
   Yoga: c11abbf5809216c91fcd62f5571078b83d9b6720
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 0a932f57b9b5a4393f175a5032f8b8d1c0d7e2a9
+PODFILE CHECKSUM: 9b1e5b4db963181e0763d6e143e99cc234cb31f6
 
 COCOAPODS: 1.10.2
