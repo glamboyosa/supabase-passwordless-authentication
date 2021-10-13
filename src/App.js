@@ -1,18 +1,28 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-import AuthContextProvider from './Context'
+import TruSDK from '@tru_id/tru-sdk-react-native'
 
-import { createClient } from '@supabase/supabase-js'
+import {
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Image,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 
-import { SUPABASE_URL, SUPABASE_PUBLIC_ANON } from '@env'
-import Screens from './Screens'
+import { supabase } from './lib/supabase'
+
 const App = () => {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLIC_ANON)
-
   return (
-    <AuthContextProvider>
-      <Screens />
-    </AuthContextProvider>
+    <View>
+      <Image style={styles.logo} source={require('./images/tru-logo.png')} />
+      <Text style={styles.heading}>Sign Up</Text>
+    </View>
   )
 }
 export default App
