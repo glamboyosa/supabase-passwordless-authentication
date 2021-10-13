@@ -1,4 +1,4 @@
-## SIM Card Based Authentication with Supabase React Native and tru.ID PhoneCheck 
+## SIM Card Based Authentication with Supabase React Native and tru.ID PhoneCheck
 
 ## Requirements
 
@@ -6,6 +6,7 @@
 - An [Supabase Account](https://app.supabase.io)
 - A [Twilio Account](https://www.twilio.com)
 - A mobile phone with a SIM card and mobile data connection
+
 ## Getting Started
 
 Clone the starter-files branch via:
@@ -49,20 +50,43 @@ tru server -t
 
 Create or log into a [Supabase account](https://app.supabase.io)
 
-Once logged in, you'll see an interface like below, select "new project": 
+Once logged in, you'll see an interface like below, select "new project":
 
 ![Empty Supabase Dashboard](./readme-assets/after-login.png)
 
-You'll be taken to the following page, ensure to input your desired credentials for example: 
+You'll be taken to the following page, ensure to input your desired credentials for example:
 
 ![Create a new project](./readme-assets/create-new-project.png)
 
-You'll then be redirected to the dashboard. Once there, click on the user icon on the left or "try auth" button 
+You'll then be redirected to the dashboard. Once there, click on the user icon on the left or "try auth" button
 
 ![Newly created project dashboard](./readme-assets/dashboard.png)
 
-When you click that, you'll be taken to the following page. Under "Phone Auth" click the "Enable Phone Signup" toggle to enable phone sign up. 
-![Authentication page](./readme-assets/phone-auth.png)
+When you click that, you'll be taken to the following page. Click the "Settings" option and under "Email auth" , disable "Enable Email Confirmations" as shown below
+![Authentication page](./readme-assets/email-auth.png)
 
-> **Note** Supabase uses Twilio Phone Auth so ensure to get set up with [Twilio](https://www.twilio.com)
+Next, we need to copy our the values of the `.env.example` to `.env`:
 
+```bash
+cp .env.example .env
+```
+
+Replace `SUPABASE_URL` with the `URL` value found under "Settings > API > Config > URL" in your project dashboard.
+
+Next, replace `SUPABASE_PUBLIC_ANON` with the `anon public` value found under "Settings > API > Project API keys > anon public"
+
+## Start the project
+
+To start the project, first install dependencies via:
+
+```bash
+npm install
+```
+
+Ensure you have a physical device connected and run:
+
+```bash
+npm run android
+#or
+npm run ios
+```
