@@ -17,7 +17,7 @@ import {
 
 import { supabase } from './lib/supabase'
 const App = () => {
-  const baseURL = 'https://spotty-swan-93.loca.lt'
+  const baseURL = '<YOUR_LOCAL_TUNNEL_URL>'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -99,7 +99,7 @@ const App = () => {
     } else {
       isPhoneCheckSupported = true
     }
- 
+
     // If the PhoneCheck API is supported, proceed with PhoneCheck verification and Supabase Auth
 
     if (isPhoneCheckSupported) {
