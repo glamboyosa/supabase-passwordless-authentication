@@ -17,7 +17,7 @@ import {
 
 import { supabase } from './lib/supabase'
 const App = () => {
-  const baseURL = 'https://rotten-dingo-69.loca.lt'
+  const baseURL = 'https://spotty-swan-93.loca.lt'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -65,41 +65,41 @@ const App = () => {
     return json
   }
 
-  const LoginHandler = async () => {
+  const signUpHandler = async () => {
     setLoading(true)
     // check if we have coverage using the `isReachable` function
 
-    // const reachabilityDetails = await TruSDK.isReachable()
+    const reachabilityDetails = await TruSDK.isReachable()
 
-    // console.log('Reachability details are', reachabilityDetails)
+    console.log('Reachability details are', reachabilityDetails)
 
-    // const info = JSON.parse(reachabilityDetails)
+    const info = JSON.parse(reachabilityDetails)
 
-    // if (info.error?.status === 400) {
-    //   errorHandler({
-    //     title: 'Something went wrong.',
-    //     message: 'Mobile Operator not supported',
-    //   })
-    //   setLoading(false)
-    //   return
-    // }
+    if (info.error.status === 400) {
+      errorHandler({
+        title: 'Something went wrong.',
+        message: 'Mobile Operator not supported',
+      })
+      setLoading(false)
+      return
+    }
 
-    // let isPhoneCheckSupported = false
+    let isPhoneCheckSupported = false
 
-    // if (info.error?.status !== 412) {
-    //   isPhoneCheckSupported = false
+    if (info.error.status !== 412) {
+      isPhoneCheckSupported = false
 
-    //   for (const { product_name } of info.products) {
-    //     console.log('supported products are', product_name)
+      for (const { product_name } of info.products) {
+        console.log('supported products are', product_name)
 
-    //     if (product_name === 'Phone Check') {
-    //       isPhoneCheckSupported = true
-    //     }
-    //   }
-    // } else {
-    //   isPhoneCheckSupported = true
-    // }
-    let isPhoneCheckSupported = true
+        if (product_name === 'Phone Check') {
+          isPhoneCheckSupported = true
+        }
+      }
+    } else {
+      isPhoneCheckSupported = true
+    }
+ 
     // If the PhoneCheck API is supported, proceed with PhoneCheck verification and Supabase Auth
 
     if (isPhoneCheckSupported) {
@@ -109,14 +109,15 @@ const App = () => {
 
       const phoneCheckResult = await getPhoneCheck(phoneCheckResponse.check_id)
 
-      // if we do not have a match, do not proceed with Supabase auth
-      // if (!phoneCheckResult.match) {
-      //   errorHandler({
-      //     title: 'Something Went Wrong',
-      //     message: 'PhoneCheck verification unsuccessful.',
-      //   })
-      //   return
-      // }
+      //  if we do not have a match, do not proceed with Supabase auth
+      if (!phoneCheckResult.match) {
+        setLoading(false)
+        errorHandler({
+          title: 'Something Went Wrong',
+          message: 'PhoneCheck verification unsuccessful.',
+        })
+        return
+      }
 
       // proceed with Supabase Auth
       const { session, error } = await supabase.auth.signUp({
@@ -125,9 +126,12 @@ const App = () => {
       })
 
       if (!error && session) {
+        setLoading(false)
         successHandler()
+        return
       } else {
         console.log(JSON.stringify(error))
+        setLoading(false)
         errorHandler({ title: 'Something went wrong.', message: error.message })
         return
       }
@@ -138,8 +142,11 @@ const App = () => {
       })
 
       if (!error && session) {
+        setLoading(false)
         successHandler()
+        return
       } else {
+        setLoading(false)
         errorHandler({ title: 'Something went wrong.', message: error.message })
         return
       }
@@ -186,8 +193,8 @@ const App = () => {
             color="#00ff00"
           />
         ) : (
-          <TouchableOpacity onPress={LoginHandler} style={styles.button}>
-            <Text style={styles.buttonText}>Login</Text>
+          <TouchableOpacity onPress={signUpHandler} style={styles.button}>
+            <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -220,6 +227,7 @@ const styles = StyleSheet.create({
     borderColor: '#858585',
     borderWidth: 0.4,
     elevation: 7,
+    marginBottom: 10,
     shadowColor: '#858585',
     shadowOffset: { width: 0.5, height: 1 },
     shadowOpacity: 0.8,
