@@ -4,7 +4,6 @@
 
 - A [tru.ID Account](https://tru.id)
 - An [Supabase Account](https://app.supabase.io)
-- A [Twilio Account](https://www.twilio.com)
 - A mobile phone with a SIM card and mobile data connection
 
 ## Getting Started
