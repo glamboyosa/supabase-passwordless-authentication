@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
 
-import TruSDK from '@tru_id/tru-sdk-react-native'
-
 import {
   ActivityIndicator,
   Alert,
@@ -16,6 +14,8 @@ import {
 } from 'react-native'
 
 import { supabase } from './lib/supabase'
+import TruSDK from '@tru_id/tru-sdk-react-native'
+
 const App = () => {
   const baseURL = '<YOUR_LOCAL_TUNNEL_URL>'
   const [email, setEmail] = useState('')
@@ -62,31 +62,33 @@ const App = () => {
   const getPhoneCheck = async (checkId) => {
     const response = await fetch(`${baseURL}/phone-check?check_id=${checkId}`)
     const json = await response.json()
+
     return json
   }
 
   const signUpHandler = async () => {
     setLoading(true)
-    // check if we have coverage using the `isReachable` function
 
+    // check if we have coverage using the `isReachable` function
     const reachabilityDetails = await TruSDK.isReachable()
 
     console.log('Reachability details are', reachabilityDetails)
 
     const info = JSON.parse(reachabilityDetails)
 
-    if (info.error.status === 400) {
+    if (info.error && info.error.status === 400) {
       errorHandler({
         title: 'Something went wrong.',
         message: 'Mobile Operator not supported',
       })
       setLoading(false)
+
       return
     }
 
     let isPhoneCheckSupported = false
 
-    if (info.error.status !== 412) {
+    if (info.error && info.error.status !== 412) {
       isPhoneCheckSupported = false
 
       for (const { product_name } of info.products) {
@@ -101,7 +103,6 @@ const App = () => {
     }
 
     // If the PhoneCheck API is supported, proceed with PhoneCheck verification and Supabase Auth
-
     if (isPhoneCheckSupported) {
       const phoneCheckResponse = await createPhoneCheck(phoneNumber)
 
@@ -109,13 +110,14 @@ const App = () => {
 
       const phoneCheckResult = await getPhoneCheck(phoneCheckResponse.check_id)
 
-      //  if we do not have a match, do not proceed with Supabase auth
+      // If we do not have a match, do not proceed with Supabase auth
       if (!phoneCheckResult.match) {
         setLoading(false)
         errorHandler({
           title: 'Something Went Wrong',
           message: 'PhoneCheck verification unsuccessful.',
         })
+
         return
       }
 
@@ -128,11 +130,13 @@ const App = () => {
       if (!error && session) {
         setLoading(false)
         successHandler()
+
         return
       } else {
         console.log(JSON.stringify(error))
         setLoading(false)
         errorHandler({ title: 'Something went wrong.', message: error.message })
+
         return
       }
     } else {
@@ -144,10 +148,12 @@ const App = () => {
       if (!error && session) {
         setLoading(false)
         successHandler()
+
         return
       } else {
         setLoading(false)
         errorHandler({ title: 'Something went wrong.', message: error.message })
+
         return
       }
     }
