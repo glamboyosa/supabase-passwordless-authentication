@@ -17,10 +17,12 @@ import { supabase } from './lib/supabase'
 
 const App = () => {
   return (
-    <View>
-      <Image style={styles.logo} source={require('./images/tru-logo.png')} />
-      <Text style={styles.heading}>Sign Up</Text>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Image style={styles.logo} source={require('./images/tru-logo.png')} />
+        <Text style={styles.heading}>Sign Up</Text>
+      </View>
+    </SafeAreaView>
   )
 }
 
