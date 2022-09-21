@@ -14,15 +14,132 @@ import {
 } from 'react-native'
 
 import { supabase } from './lib/supabase'
-import TruSDK from '@tru_id/tru-sdk-react-native'
+
+import TruSdkReactNative from '@tru_id/tru-sdk-react-native'
 
 const App = () => {
   const baseURL = '<YOUR_LOCAL_TUNNEL_URL>'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [phoneNumber, setPhoneNumber] = useState('')
-  const [otp, setOTP] = useState('')
   const [loading, setLoading] = useState(false)
+  const [phoneNumber, setPhoneNumber] = useState('')
+  
+  const signUpHandler = async () => {
+    setLoading(true)
+  
+    // check if we have coverage using the `isReachable` function
+    try {
+      const reachabilityResponse = await TruSdkReactNative.openWithDataCellular(
+        'https://eu.api.tru.id/public/coverage/v0.1/device_ip'
+      );
+  
+      console.log(reachabilityResponse);
+      let isMNOSupported = false
+  
+      if ('error' in reachabilityResponse) {
+        errorHandler({
+          title: 'Something went wrong.',
+          message: 'MNO not supported',
+        })
+        setLoading(false)
+  
+        return
+      } else if ('http_status' in reachabilityResponse) {
+        let httpStatus = reachabilityResponse.http_status;
+        if (httpStatus === 200 && reachabilityResponse.response_body !== undefined) {
+          let body = reachabilityResponse.response_body;
+          console.log('product => ' + JSON.stringify(body.products[0]));
+          isMNOSupported = true;
+        } else if (httpStatus === 400 || httpStatus === 412 || reachabilityResponse.response_body !== undefined) {
+          errorHandler({
+            title: 'Something went wrong.',
+            message: 'MNO not supported',
+          })
+          setLoading(false)
+  
+          return
+        }
+      }
+  
+      let isPhoneCheckSupported = false
+  
+      if (isMNOSupported === true) {
+        reachabilityResponse.response_body.products.forEach((product) => {
+          console.log('supported products are', product)
+  
+          if (product.product_name === 'Phone Check') {
+            isPhoneCheckSupported = true
+          }
+        })
+      }
+  
+      // If the PhoneCheck API is supported, proceed with PhoneCheck verification and Supabase Auth
+      if (isPhoneCheckSupported) {
+        const phoneCheckResponse = await createPhoneCheck(phoneNumber)
+
+        const checkResponse = await TruSdkReactNative.openWithDataCellular(
+          phoneCheckResponse.check_url
+        );
+
+        console.log('......');
+        console.log(checkResponse);
+        const phoneCheckResult = await completePhoneCheck(checkResponse.response_body.check_id, checkResponse.response_body.code)
+
+        console.log('-------');
+        console.log(phoneCheckResult);
+        //  if we do not have a match, do not proceed with Supabase auth
+        if (!phoneCheckResult.match) {
+          setLoading(false)
+          errorHandler({
+            title: 'Something Went Wrong',
+            message: 'PhoneCheck verification unsuccessful.',
+          })
+
+          return
+        }
+
+        // proceed with Supabase Auth
+        const { session, error } = await supabase.auth.signUp({
+          email,
+          password,
+        })
+  
+        if (!error && session) {
+          setLoading(false)
+          successHandler()
+  
+          return
+        } else {
+          console.log(JSON.stringify(error))
+          setLoading(false)
+          errorHandler({ title: 'Something went wrong.', message: error.message })
+  
+          return
+        }
+      } else {
+        const { session, error } = await supabase.auth.signUp({
+          email,
+          password,
+        })
+  
+        if (!error && session) {
+          setLoading(false)
+          successHandler()
+  
+          return
+        } else {
+          setLoading(false)
+          errorHandler({ title: 'Something went wrong.', message: error.message })
+  
+          return
+        }
+      }
+    } catch (e) {
+      setLoading(false)
+      errorHandler({ title: 'Something went wrong', message: e.message })
+    }
+  }
+
 
   const errorHandler = ({ title, message }) => {
     return Alert.alert(title, message, [
@@ -32,131 +149,48 @@ const App = () => {
       },
     ])
   }
-
-  const successHandler = () =>
+  
+  const successHandler = () => {
     Alert.alert('Login Successful', '✅', [
       {
         text: 'Close',
         onPress: () => console.log('Alert closed'),
       },
     ])
+  }
 
   const createPhoneCheck = async (phoneNumber) => {
     const body = { phone_number: phoneNumber }
-
+  
     console.log('tru.ID: Creating PhoneCheck for', body)
-
-    const response = await fetch(`${baseURL}/phone-check`, {
+  
+    const response = await fetch(`${baseURL}/v0.2/phone-check`, {
       body: JSON.stringify(body),
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
     })
-
+  
     const json = await response.json()
-
+  
     return json
   }
 
-  const getPhoneCheck = async (checkId) => {
-    const response = await fetch(`${baseURL}/phone-check?check_id=${checkId}`)
+  const completePhoneCheck = async (checkId, code) => {
+    const response = await fetch(`${baseURL}/v0.2/phone-check/exchange-code`, {
+      method: 'POST',
+      body: JSON.stringify({
+        check_id: checkId,
+        code: code,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
     const json = await response.json()
-
+  
     return json
-  }
-
-  const signUpHandler = async () => {
-    setLoading(true)
-
-    // check if we have coverage using the `isReachable` function
-    const reachabilityDetails = await TruSDK.isReachable()
-
-    console.log('Reachability details are', reachabilityDetails)
-
-    const info = JSON.parse(reachabilityDetails)
-
-    if (info.error && info.error.status === 400) {
-      errorHandler({
-        title: 'Something went wrong.',
-        message: 'Mobile Operator not supported',
-      })
-      setLoading(false)
-
-      return
-    }
-
-    let isPhoneCheckSupported = false
-
-    if (info.error && info.error.status !== 412) {
-      isPhoneCheckSupported = false
-
-      for (const { product_name } of info.products) {
-        console.log('supported products are', product_name)
-
-        if (product_name === 'Phone Check') {
-          isPhoneCheckSupported = true
-        }
-      }
-    } else {
-      isPhoneCheckSupported = true
-    }
-
-    // If the PhoneCheck API is supported, proceed with PhoneCheck verification and Supabase Auth
-    if (isPhoneCheckSupported) {
-      const phoneCheckResponse = await createPhoneCheck(phoneNumber)
-
-      await TruSDK.check(phoneCheckResponse.check_url)
-
-      const phoneCheckResult = await getPhoneCheck(phoneCheckResponse.check_id)
-
-      // If we do not have a match, do not proceed with Supabase auth
-      if (!phoneCheckResult.match) {
-        setLoading(false)
-        errorHandler({
-          title: 'Something Went Wrong',
-          message: 'PhoneCheck verification unsuccessful.',
-        })
-
-        return
-      }
-
-      // proceed with Supabase Auth
-      const { session, error } = await supabase.auth.signUp({
-        email,
-        password,
-      })
-
-      if (!error && session) {
-        setLoading(false)
-        successHandler()
-
-        return
-      } else {
-        console.log(JSON.stringify(error))
-        setLoading(false)
-        errorHandler({ title: 'Something went wrong.', message: error.message })
-
-        return
-      }
-    } else {
-      const { session, error } = await supabase.auth.signUp({
-        email,
-        password,
-      })
-
-      if (!error && session) {
-        setLoading(false)
-        successHandler()
-
-        return
-      } else {
-        setLoading(false)
-        errorHandler({ title: 'Something went wrong.', message: error.message })
-
-        return
-      }
-    }
   }
 
   return (

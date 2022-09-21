@@ -12,7 +12,7 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.15.9",
     "@supabase/supabase-js": "^1.24.0",
-    "@tru_id/tru-sdk-react-native": "^0.3.6",
+    "@tru_id/tru-sdk-react-native": "^1.0.0-preview",
     "react": "17.0.2",
     "react-native": "0.66.0",
     "react-native-dotenv": "^3.2.0"
